@@ -1,23 +1,37 @@
 package intersections
 
-import groovy.transform.Immutable;
+import groovy.transform.CompileStatic
 
-def stretches = []
-new File('Strecken_1000.dat').text.eachLine { String line, lineNumber ->
-    def points = line.split(" ")
-    stretches << new Stretch(lineNumber: lineNumber + 1,
-            a: new Coordinate(x: points[0] as BigDecimal, y: points[1] as BigDecimal),
-            b: new Coordinate(x: points[2] as BigDecimal, y: points[3] as BigDecimal))
-}
+import groovy.transform.Immutable
+import groovyx.gpars.GParsPool
 
-stretches.each { stretch1 ->
-    stretches.each { stretch2 ->
-        if (!stretch1.is(stretch2)) println "${stretch1.lineNumber} - ${stretch2.lineNumber}: ${stretch1.intersects(stretch2)}"
+import java.util.concurrent.atomic.AtomicInteger;
+
+GParsPool.withPool {
+    new File('./').eachFileMatch(~/Strecken_(.*)\.dat/) { file ->
+        println file.name
+        def start = System.currentTimeMillis()
+
+        def stretches = file.text.split('\n').collect { String line ->
+            def points = line.split(' ')
+            new Stretch(a: new Coordinate(x: points[0] as double, y: points[1] as double),
+                        b: new Coordinate(x: points[2] as double, y: points[3] as double))
+        }
+        println "Reading file completed in ${System.currentTimeMillis()-start} ms"
+
+        def count = new AtomicInteger()
+        (0..<stretches.size()).eachParallel { int i1 ->
+            (i1 + 1..<stretches.size()).each { int i2 ->
+                def intersects =  stretches[i1].intersects(stretches[i2])
+                if (intersects) count.incrementAndGet()
+            }
+        }
+        println "Found $count intersections"
+        println "Calculating intersections of $file.name completed in ${System.currentTimeMillis()-start} ms\n\n"
     }
 }
 
-@Immutable class Stretch {
-    int lineNumber
+@Immutable @CompileStatic class Stretch {
     Coordinate a, b
 
     boolean intersects(Stretch s) {
@@ -25,11 +39,11 @@ stretches.each { stretch1 ->
         (ccw(s.a, s.b,   a) * ccw(s.a, s.b,   b) <= 0)
     }
 
-    BigDecimal ccw(Coordinate p, Coordinate q, Coordinate r) {
+    static double ccw(Coordinate p, Coordinate q, Coordinate r) {
         (p.x * q.y - p.y * q.x) + (q.x * r.y - q.y * r.x) + (p.y * r.x - p.x * r.y)
     }
 }
 
-@Immutable class Coordinate {
-    BigDecimal x, y
+@Immutable @CompileStatic class Coordinate {
+    double x, y
 }
