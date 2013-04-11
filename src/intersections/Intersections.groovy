@@ -1,7 +1,6 @@
 package intersections
 
 import groovy.transform.CompileStatic
-
 import groovy.transform.Immutable
 import groovyx.gpars.GParsPool
 
@@ -22,8 +21,7 @@ GParsPool.withPool {
         def count = new AtomicInteger()
         (0..<stretches.size()).eachParallel { int i1 ->
             (i1 + 1..<stretches.size()).each { int i2 ->
-                def intersects =  stretches[i1].intersects(stretches[i2])
-                if (intersects) count.incrementAndGet()
+                if (stretches[i1].intersects(stretches[i2])) count.incrementAndGet()
             }
         }
         println "Found $count intersections"
