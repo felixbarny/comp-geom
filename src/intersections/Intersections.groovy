@@ -11,12 +11,8 @@ GParsPool.withPool {
         println file.name
         def start = System.currentTimeMillis()
 
-        def stretches = file.text.split('\n').collect { String line ->
-            def points = line.split(' ')
-            new Stretch(a: new Coordinate(x: points[0] as double, y: points[1] as double),
-                        b: new Coordinate(x: points[2] as double, y: points[3] as double))
-        }
-        println "Reading file completed in ${System.currentTimeMillis()-start} ms"
+        def stretches = file.text.split('\n').collect { Stretch.valueOf(it.split()) }
+        println "Reading file completed in ${System.currentTimeMillis() - start} ms"
 
         def count = new AtomicInteger()
         (0..<stretches.size()).eachParallel { int i1 ->
@@ -25,19 +21,24 @@ GParsPool.withPool {
             }
         }
         println "Found $count intersections"
-        println "Calculating intersections of $file.name completed in ${System.currentTimeMillis()-start} ms\n\n"
+        println "Calculating intersections of $file.name completed in ${System.currentTimeMillis() - start} ms\n\n"
     }
 }
 
-@Immutable @CompileStatic class Stretch {
+@Immutable class Stretch {
     Coordinate a, b
 
-    boolean intersects(Stretch s) {
+    static Stretch valueOf(points) {
+        new Stretch(a: new Coordinate(x: points[0] as double, y: points[1] as double),
+                    b: new Coordinate(x: points[2] as double, y: points[3] as double))
+    }
+
+    @CompileStatic boolean intersects(Stretch s) {
         (ccw(  a,   b, s.a) * ccw(  a,   b, s.b) <= 0) &&
         (ccw(s.a, s.b,   a) * ccw(s.a, s.b,   b) <= 0)
     }
 
-    static double ccw(Coordinate p, Coordinate q, Coordinate r) {
+    @CompileStatic static double ccw(Coordinate p, Coordinate q, Coordinate r) {
         (p.x * q.y - p.y * q.x) + (q.x * r.y - q.y * r.x) + (p.y * r.x - p.x * r.y)
     }
 }
