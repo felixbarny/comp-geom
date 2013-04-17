@@ -16,13 +16,19 @@ GParsPool.withPool {
 
         def count = new AtomicInteger()
         (0..<stretches.size()).eachParallel { int i1 ->
-            (i1 + 1..<stretches.size()).each { int i2 ->
-                if (stretches[i1].intersects(stretches[i2])) count.incrementAndGet()
-            }
+                count.addAndGet(getCount(stretches, i1))
         }
         println "Found $count intersections"
         println "Calculating intersections of $file.name completed in ${System.currentTimeMillis() - start} ms\n\n"
     }
+}
+
+@CompileStatic def getCount(List<Stretch> stretches, int i1) {
+    int count = 0
+    for (int i2 = i1 + 1; i2 < stretches.size(); i2++) {
+        if (stretches[i1].intersects(stretches[i2])) count++
+    }
+    return count
 }
 
 @Immutable class Stretch {
@@ -42,9 +48,9 @@ GParsPool.withPool {
 
     @CompileStatic boolean isOverlpping(Stretch r) {
         def parallel = getLeftParallelStretch()
-        if ((ccw(p, r.p, parallel.p) >= 0 && ccw(r.p, q, parallel.q) >= 0) || (ccw(p, r.q, parallel.p) >= 0 && ccw(r.q, q, parallel.q) >= 0)) {
-            !(isPoint() && r.isPoint()) ?: this == r
-        } else false
+        ((ccw(p, r.p, parallel.p) >= 0 && ccw(r.p, q, parallel.q) >= 0) ||
+        (ccw(p, r.q, parallel.p) >= 0 && ccw(r.q, q, parallel.q) >= 0)) &&
+        (!(isPoint() && r.isPoint()) || this == r)
     }
 
     @CompileStatic static double ccw(Coordinate p, Coordinate q, Coordinate r) {

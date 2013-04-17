@@ -51,9 +51,8 @@ class IntersectionsTest extends Specification {
         stretch1         | stretch2                  | intersects
         [0, 0, 0, 10]    | [0, 10, 0, 10]            | true  // one point
         [0, 0, 0, 10]    | [0, 11, 0, 11]            | false
-        [0, 0, 0, 10]    | [5, 5, 5, 5]              | false
-        [5, 5, 5, 5]     | [0, 0, 0, 10]             | false
-        [10, 10, 10, 10] | [0, 0.099, 4.163, 17.664] | false
+        [0, 0, 0, 10]    | [5, 5, 5, 5]              | false // right one is point
+        [5, 5, 5, 5]     | [0, 0, 0, 10]             | false // left one is point
 
         [0, 0, 0, 0]     | [0.0001, 0, 0.0001, 0]    | false // two points
         [0, 0, 10, 10]   | [11, 11, 20, 20]          | false
