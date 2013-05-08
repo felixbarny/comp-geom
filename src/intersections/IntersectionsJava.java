@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -22,7 +23,6 @@ public class IntersectionsJava {
             System.out.println("Reading file completed in " + (System.currentTimeMillis() - start) + " ms");
 
             ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
-
             final AtomicInteger count = new AtomicInteger();
             for (int i1 = 0; i1 < stretches.length; i1++) {
                 final int finalI = i1;
@@ -46,10 +46,10 @@ public class IntersectionsJava {
     }
 
     private static StretchJava[] readStretches(String fileName) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader("D:\\dev\\workspaces\\workspace-idea\\comp-geom\\src\\intersections/" + fileName));
-        try {
+        try (BufferedReader bufferedReader =
+                     new BufferedReader(new FileReader("/Users/najum/Documents/uni/ComputationalGeometry/comp-geom/src/intersections/" + fileName))) {
             List<StretchJava> stretches = new ArrayList<StretchJava>(10000);
-            String line = br.readLine();
+            String line = bufferedReader.readLine();
 
             while (line != null) {
                 String[] split = line.split(" ");
@@ -59,11 +59,9 @@ public class IntersectionsJava {
                     doubles[i] = Double.valueOf(s);
                 }
                 stretches.add(StretchJava.valueOf(doubles));
-                line = br.readLine();
+                line = bufferedReader.readLine();
             }
             return stretches.toArray(new StretchJava[stretches.size()]);
-        } finally {
-            br.close();
         }
     }
 }
