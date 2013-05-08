@@ -1,6 +1,6 @@
 package state.svg
 
-@Grab(group='batik', module='batik-parser', version='1.6')
+@Grab(group='org.apache.xmlgraphics', module='batik-parser', version='1.7')
 import intersections.Coordinate
 import org.apache.batik.parser.DefaultPointsHandler
 import org.apache.batik.parser.PointsParser
