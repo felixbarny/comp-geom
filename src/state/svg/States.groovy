@@ -13,12 +13,9 @@ def svg = new XmlSlurper().parse(new File("./states.svg"))
 
 println "extracting polygons..."
 Map<String, Shape> states = svg.g.path.findAll().collectEntries {
-    if ((it.@d as String).count('z') < 2) {
-        def polygon = extractPoints(it.@d as String)
-//        N_Vertex.paintShape(polygon)
-        [(it.@id): polygon]
-    } else [(it.@id): null]
-}.findAll { it.value != null }
+    [(it.@id): svgDataToShape(it.@d as String)]
+}
+states.each { N_Vertex.paintShape(it.value) }
 
 def cities = svg.path.findAll().collectEntries {
     [(it.@id): [it.@"sodipodi:cx".text() as double, it.@"sodipodi:cy".text() as double]]
@@ -32,7 +29,7 @@ states.each { state ->
     }
 }
 
-public Shape extractPoints(String s) throws ParseException {
+public Shape svgDataToShape(String s) throws ParseException {
     PathParser pp = new PathParser();
     PathHandler awtPathProducer = new AWTPathProducer()
     pp.setPathHandler(awtPathProducer);
