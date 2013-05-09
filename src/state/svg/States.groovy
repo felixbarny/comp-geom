@@ -20,19 +20,23 @@ Map<String, Shape> states = svg.g.path.findAll().collectEntries {
 }
 
 def statePaths = states.collectEntries {
+    def pathes = []
     def path = []
     for (PathIterator pi = it.value.getPathIterator(null); !pi.isDone(); pi.next()) {
         double[] coords = new double[2];
         int segmentType = pi.currentSegment(coords);
         if (!segmentType.equals(PathIterator.SEG_CLOSE)) {
             path << coords
+        } else {
+            pathes << path
+            path = []
         }
     }
-    [(it.key): path]
+    [(it.key): pathes]
 }
 
 statePaths.each {
-    println "Area of $it.key=${getArea(it.value).toBigDecimal().toPlainString()}"
+    println "Area of $it.key is ${getAreaInSqKm(it.value).round(2)} km2"
 }
 
 println "extracting cities..."
@@ -57,10 +61,12 @@ public Shape svgDataToShape(String s) throws ParseException {
 }
 
 @CompileStatic
-public double getArea(List<double[]> polygon) {
+public double getAreaInSqKm(List<List<double[]>> state) {
     double sum = 0
-    for (int i = 0; i < polygon.size() - 1; i++) {
-        sum += ((double) polygon[i][1]) * (polygon[i - 1][0] + polygon[i + 1][0]) / 2;
+    for (List<double[]> polygon : state) {
+        for (int i = -1; i < polygon.size() - 1; i++) {
+            sum += ((double) polygon[i][1]) * (polygon[i - 1][0] - polygon[i + 1][0]) / 2;
+        }
     }
-    return sum
+    return sum / 0.85d
 }
