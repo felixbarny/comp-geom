@@ -16,10 +16,10 @@ public class StretchJava {
         double ccw1 = ccw(p, q, r.p) * ccw(p, q, r.q);
         double ccw2 = ccw(r.p, r.q, p) * ccw(r.p, r.q, q);
 
-        return ccw1 == 0 && ccw2 == 0 ? isOverlpping(r) : ccw1 <= 0 && ccw2 <= 0;
+        return ccw1 == 0 && ccw2 == 0 ? isOverlapping(r) : ccw1 <= 0 && ccw2 <= 0;
     }
 
-    public boolean isOverlpping(StretchJava r) {
+    public boolean isOverlapping(StretchJava r) {
         StretchJava parallel = getLeftParallelStretch();
         return ((ccw(p, r.p, parallel.p) >= 0 && ccw(r.p, q, parallel.q) >= 0) ||
                 (ccw(p, r.q, parallel.p) >= 0 && ccw(r.q, q, parallel.q) >= 0))
