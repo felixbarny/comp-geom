@@ -49,7 +49,7 @@ public class IntersectionsJava {
     private static StretchJava[] readStretches(String fileName) throws IOException {
         try (BufferedReader bufferedReader =
                      new BufferedReader(new FileReader("/Users/najum/Documents/uni/ComputationalGeometry/comp-geom/src/intersections/" + fileName))) {
-            List<StretchJava> stretches = new ArrayList<StretchJava>(10000);
+            List<StretchJava> stretches = new ArrayList<>(10_000);
             String line = bufferedReader.readLine();
 
             while (line != null) {
