@@ -68,5 +68,6 @@ public double getAreaInSqKm(List<List<double[]>> state) {
             sum += ((double) polygon[i][1]) * (polygon[i - 1][0] - polygon[i + 1][0]) / 2;
         }
     }
+    // factor to convert result in actual km²
     return sum / 0.85d
 }
