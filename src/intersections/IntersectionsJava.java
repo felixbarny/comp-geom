@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -24,14 +23,16 @@ public class IntersectionsJava {
 
             ExecutorService pool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
             final AtomicInteger count = new AtomicInteger();
-            for (int i1 = 0; i1 < stretches.length; i1++) {
-                final int finalI = i1;
+            for (int index1 = 0; index1 < stretches.length; index1++) {
+                final int finalIndex1 = index1;
                 pool.execute(new Runnable() {
                     @Override
                     public void run() {
                         int localCount = 0;
-                        for (int i2 = finalI + 1; i2 < stretches.length; i2++) {
-                            if (stretches[finalI].intersects(stretches[i2])) localCount++;
+                        for (int index2 = finalIndex1 + 1; index2 < stretches.length; index2++) {
+                            if (stretches[finalIndex1].intersects(stretches[index2])) {
+                                localCount++;
+                            }
                         }
                         count.getAndAdd(localCount);
                     }
@@ -48,7 +49,7 @@ public class IntersectionsJava {
     private static StretchJava[] readStretches(String fileName) throws IOException {
         try (BufferedReader bufferedReader =
                      new BufferedReader(new FileReader("/Users/najum/Documents/uni/ComputationalGeometry/comp-geom/src/intersections/" + fileName))) {
-            List<StretchJava> stretches = new ArrayList<StretchJava>(10000);
+            List<StretchJava> stretches = new ArrayList<>(10_000);
             String line = bufferedReader.readLine();
 
             while (line != null) {
