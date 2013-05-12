@@ -11,7 +11,7 @@ GParsPool.withPool {
         println file.name
         def start = System.currentTimeMillis()
 
-        def stretches = file.readLines().collect {
+        def stretches = file.readLines().collectParallel {
             def coords = it.split()*.toDouble()
             new Line2D.Double(coords[0], coords[1], coords[2], coords[3])
         }

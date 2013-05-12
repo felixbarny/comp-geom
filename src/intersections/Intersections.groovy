@@ -11,7 +11,7 @@ GParsPool.withPool {
         println file.name
         def start = System.currentTimeMillis()
 
-        def stretches = file.readLines().collect { Stretch.valueOf(it.split()) }
+        def stretches = file.readLines().collectParallel { Stretch.valueOf(it.split()) }
         println "Reading file completed in ${System.currentTimeMillis() - start} ms"
 
         def count = new AtomicInteger()

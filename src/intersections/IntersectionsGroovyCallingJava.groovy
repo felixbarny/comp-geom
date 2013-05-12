@@ -10,7 +10,7 @@ GParsPool.withPool {
         println file.name
         def start = System.currentTimeMillis()
 
-        def stretchesList = file.readLines().collect { StretchJava.valueOf(it.split().collect{it as double}.toArray(new double[4])) }
+        def stretchesList = file.readLines().collectParallel { StretchJava.valueOf(it.split().collect{it as double}.toArray(new double[4])) }
         def stretches = stretchesList.toArray(new StretchJava[stretchesList.size()])
         println "Reading file completed in ${System.currentTimeMillis() - start} ms"
 
