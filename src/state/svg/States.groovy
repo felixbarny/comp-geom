@@ -1,7 +1,7 @@
 package state.svg
 
-import groovy.transform.CompileStatic
 @Grab(group = 'org.apache.xmlgraphics', module = 'batik-parser', version = '1.7')
+import groovy.transform.CompileStatic
 import org.apache.batik.parser.AWTPathProducer
 import org.apache.batik.parser.ParseException
 import org.apache.batik.parser.PathHandler
@@ -20,19 +20,7 @@ Map<String, Shape> states = svg.g.path.findAll().collectEntries {
 }
 
 def statePaths = states.collectEntries {
-    def pathes = []
-    def path = []
-    for (PathIterator pi = it.value.getPathIterator(null); !pi.isDone(); pi.next()) {
-        double[] coords = new double[2];
-        int segmentType = pi.currentSegment(coords);
-        if (!segmentType.equals(PathIterator.SEG_CLOSE)) {
-            path << coords
-        } else {
-            pathes << path
-            path = []
-        }
-    }
-    [(it.key): pathes]
+    [(it.key): convertShapeToPathsList(it.value)]
 }
 
 statePaths.each {
@@ -52,7 +40,7 @@ states.each { state ->
     }
 }
 
-public Shape svgDataToShape(String s) throws ParseException {
+@CompileStatic public Shape svgDataToShape(String s) throws ParseException {
     PathParser pp = new PathParser();
     PathHandler awtPathProducer = new AWTPathProducer()
     pp.setPathHandler(awtPathProducer);
@@ -60,8 +48,23 @@ public Shape svgDataToShape(String s) throws ParseException {
     awtPathProducer.shape
 }
 
-@CompileStatic
-public double getAreaInSqKm(List<List<double[]>> state) {
+@CompileStatic private List<List<double[]>> convertShapeToPathsList(Shape shape) {
+    def paths = []
+    def path = []
+    for (PathIterator pi = shape.getPathIterator(null); !pi.isDone(); pi.next()) {
+        double[] coords = new double[2];
+        int segmentType = pi.currentSegment(coords);
+        if (!segmentType.equals(PathIterator.SEG_CLOSE)) {
+            path << coords
+        } else {
+            paths << path
+            path = []
+        }
+    }
+    return paths
+}
+
+@CompileStatic public double getAreaInSqKm(List<List<double[]>> state) {
     double sum = 0
     for (List<double[]> polygon : state) {
         for (int i = -1; i < polygon.size() - 1; i++) {
