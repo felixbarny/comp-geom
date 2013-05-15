@@ -3,12 +3,12 @@ package state.svg
 @Grab(group = 'org.apache.xmlgraphics', module = 'batik-parser', version = '1.7')
 import groovy.transform.CompileStatic
 import org.apache.batik.parser.AWTPathProducer
-import org.apache.batik.parser.ParseException
 import org.apache.batik.parser.PathHandler
 import org.apache.batik.parser.PathParser
 
 import java.awt.*
 import java.awt.geom.PathIterator
+import java.text.ParseException
 import java.util.List
 
 println "slurping svg..."
@@ -40,7 +40,8 @@ states.each { state ->
     }
 }
 
-@CompileStatic public Shape svgDataToShape(String s) throws ParseException {
+@CompileStatic
+public Shape svgDataToShape(String s) throws ParseException {
     PathParser pp = new PathParser();
     PathHandler awtPathProducer = new AWTPathProducer()
     pp.setPathHandler(awtPathProducer);
@@ -48,29 +49,55 @@ states.each { state ->
     awtPathProducer.shape
 }
 
-@CompileStatic private List<List<double[]>> convertShapeToPathsList(Shape shape) {
-    def paths = []
-    def path = []
-    for (PathIterator pi = shape.getPathIterator(null); !pi.isDone(); pi.next()) {
+@CompileStatic
+private List<List<double[]>> convertShapeToPathsList(Shape stateShape) {
+    def state = []
+    def polygonOfState = []
+    for (PathIterator pi = stateShape.getPathIterator(null); !pi.isDone(); pi.next()) {
         double[] coords = new double[2];
         int segmentType = pi.currentSegment(coords);
         if (!segmentType.equals(PathIterator.SEG_CLOSE)) {
-            path << coords
+            polygonOfState << coords
         } else {
-            paths << path
-            path = []
+            state << polygonOfState
+            polygonOfState = []
         }
     }
-    return paths
+    return state
 }
 
-@CompileStatic public double getAreaInSqKm(List<List<double[]>> state) {
+@CompileStatic
+public double getAreaInSqKm(List<List<double[]>> state) {
     double sum = 0
-    for (List<double[]> polygon : state) {
+    state.eachWithIndex { List<double[]> polygon, int i1 ->
+        double sumPolygon = 0
         for (int i = -1; i < polygon.size() - 1; i++) {
-            sum += ((double) polygon[i][1]) * (polygon[i - 1][0] - polygon[i + 1][0]) / 2;
+            sumPolygon += ((double) polygon[i][1]) * (polygon[i - 1][0] - polygon[i + 1][0]) / 2;
+        }
+        sumPolygon = sumPolygon.abs()
+        if (isHole(polygon, state)) {
+            sum -= sumPolygon
+        } else {
+            sum += sumPolygon
         }
     }
     // factor to convert result in actual km²
     return sum / 0.85d
+}
+
+boolean isHole(List<double[]> polygon, List<List<double[]>> state) {
+    for (List<double[]> currentPolygon : state) {
+        if (!polygon.is(currentPolygon)) {
+            if (isPointInPolygon(currentPolygon, polygon[0]))
+                true
+        }
+    }
+    false
+}
+
+//double[] getBoundingBox(List<double[]> polygon) {
+//    return new double[0];  //To change body of created methods use File | Settings | File Templates.
+//}
+boolean isPointInPolygon(List<double[]> polygon, double[] point) {
+    return false;  //To change body of created methods use File | Settings | File Templates.
 }
