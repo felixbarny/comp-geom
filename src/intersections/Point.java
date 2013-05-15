@@ -1,9 +1,9 @@
 package intersections;
 
-public class CoordinateJava {
+public class Point {
     final double x, y;
 
-    public CoordinateJava(double x, double y) {
+    public Point(double x, double y) {
         this.x = x;
         this.y = y;
     }
@@ -13,7 +13,7 @@ public class CoordinateJava {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        CoordinateJava that = (CoordinateJava) o;
+        Point that = (Point) o;
 
         return Double.compare(that.x, x) == 0 && Double.compare(that.y, y) == 0;
 

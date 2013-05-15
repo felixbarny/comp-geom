@@ -2,6 +2,7 @@ package state.svg
 
 @Grab(group = 'org.apache.xmlgraphics', module = 'batik-parser', version = '1.7')
 import groovy.transform.CompileStatic
+import intersections.Point
 import org.apache.batik.parser.AWTPathProducer
 import org.apache.batik.parser.PathHandler
 import org.apache.batik.parser.PathParser
@@ -11,10 +12,10 @@ import java.awt.geom.PathIterator
 import java.text.ParseException
 import java.util.List
 
-println "slurping svg..."
+println "slurping svg...(mmh tasty).."
 def svg = new XmlSlurper().parse(new File("./states.svg"))
 
-println "extracting states..."
+println "\n extracting states..."
 Map<String, Shape> states = svg.g.path.findAll().collectEntries {
     [(it.@id): svgDataToShape(it.@d as String)]
 }
@@ -27,7 +28,7 @@ statePaths.each {
     println "Area of $it.key is ${getAreaInSqKm(it.value).round(2)} km2"
 }
 
-println "extracting cities..."
+println "\n extracting cities..."
 def cities = svg.path.findAll().collectEntries {
     [(it.@id): [it.@"sodipodi:cx".text() as double, it.@"sodipodi:cy".text() as double]]
 }
@@ -70,7 +71,7 @@ private List<List<double[]>> convertShapeToPathsList(Shape stateShape) {
 public double getAreaInSqKm(List<List<double[]>> state) {
     double sum = 0
     state.eachWithIndex { List<double[]> polygon, int i1 ->
-        double sumPolygon = 0
+        def sumPolygon = 0
         for (int i = -1; i < polygon.size() - 1; i++) {
             sumPolygon += ((double) polygon[i][1]) * (polygon[i - 1][0] - polygon[i + 1][0]) / 2;
         }
@@ -85,7 +86,8 @@ public double getAreaInSqKm(List<List<double[]>> state) {
     return sum / 0.85d
 }
 
-boolean isHole(List<double[]> polygon, List<List<double[]>> state) {
+@CompileStatic
+private boolean isHole(List<double[]> polygon, List<List<double[]>> state) {
     for (List<double[]> currentPolygon : state) {
         if (!polygon.is(currentPolygon)) {
             if (isPointInPolygon(currentPolygon, polygon[0]))
@@ -95,9 +97,34 @@ boolean isHole(List<double[]> polygon, List<List<double[]>> state) {
     false
 }
 
-//double[] getBoundingBox(List<double[]> polygon) {
-//    return new double[0];  //To change body of created methods use File | Settings | File Templates.
-//}
-boolean isPointInPolygon(List<double[]> polygon, double[] point) {
-    return false;  //To change body of created methods use File | Settings | File Templates.
+@CompileStatic
+private isPointInPolygon(List<double[]> polygon, double[] point) {
+    Point pointOutsidePolygon = getPointOutsidePolygon(polygon)
+         // TODO ....
+}
+
+
+@CompileStatic
+private Point getPointOutsidePolygon(List<double[]> polygon) {
+    def x
+    def y
+    def highestVectorFound = 0;
+    for (double[] coordinate : polygon) {
+        def newVectorLengthToCompare = getVectorLength(new Point(coordinate[0], coordinate[1]))
+        if (newVectorLengthToCompare > highestVectorFound) {
+            highestVectorFound = newVectorLengthToCompare
+            x = coordinate[0]
+            y = coordinate[1]
+        }
+    }
+    // add 2 to biggest coordinate to put point outside the polygon
+    x += 2.0
+    y += 2.0
+    new Point(x, y)
+}
+
+// calculate vector length from origin to point
+@CompileStatic
+private double getVectorLength(Point point) {
+    Math.sqrt(point.x ** 2 + point.y ** 2)
 }
