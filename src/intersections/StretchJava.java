@@ -1,11 +1,11 @@
 package intersections;
 
 public class StretchJava {
-    final Point p, q;
+    final PointJava p, q;
 
     public StretchJava(double[] points) {
-        this.p = new Point(points[0], points[1]);
-        this.q = new Point(points[2], points[3]);
+        this.p = new PointJava(points[0], points[1]);
+        this.q = new PointJava(points[2], points[3]);
     }
 
     public static StretchJava valueOf(double[] points) {
@@ -26,7 +26,7 @@ public class StretchJava {
                 && (!(isPoint() && r.isPoint()) || this.equals(r));
     }
 
-    public static double ccw(Point p, Point q, Point r) {
+    public static double ccw(PointJava p, PointJava q, PointJava r) {
         return (p.x * q.y - p.y * q.x) + (q.x * r.y - q.y * r.x) + (p.y * r.x - p.x * r.y);
     }
 

@@ -32,11 +32,11 @@ GParsPool.withPool {
 }
 
 @Immutable class Stretch {
-    Coordinate p, q
+    Point p, q
 
     static Stretch valueOf(points) {
-        new Stretch(p: new Coordinate(x: points[0] as double, y: points[1] as double),
-                    q: new Coordinate(x: points[2] as double, y: points[3] as double))
+        new Stretch(p: new Point(x: points[0] as double, y: points[1] as double),
+                    q: new Point(x: points[2] as double, y: points[3] as double))
     }
 
     @CompileStatic boolean intersects(Stretch r) {
@@ -53,7 +53,7 @@ GParsPool.withPool {
         (!(isPoint() && r.isPoint()) || this == r)
     }
 
-    @CompileStatic static double ccw(Coordinate p, Coordinate q, Coordinate r) {
+    @CompileStatic static double ccw(Point p, Point q, Point r) {
         (p.x * q.y - p.y * q.x) + (q.x * r.y - q.y * r.x) + (p.y * r.x - p.x * r.y)
     }
 
@@ -71,6 +71,6 @@ GParsPool.withPool {
 
 }
 
-@Immutable @CompileStatic class Coordinate {
+@Immutable @CompileStatic class Point {
     double x, y
 }
