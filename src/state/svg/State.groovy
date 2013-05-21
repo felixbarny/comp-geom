@@ -63,10 +63,11 @@ class State {
 	boolean isHole(Polygon polygon) {
 		for (Polygon currentPolygon : poygonsOfState) {
 			if (!polygon.is(currentPolygon)) {
-				if (currentPolygon.isPointInPolygon(polygon.points.first()))
-					true
+				if (currentPolygon.isPointInPolygon(polygon.points.first())) {
+					return true
+				}
 			}
 		}
-		false
+		return false
 	}
 }
