@@ -1,9 +1,9 @@
 package intersections;
 
-public class Point {
-    final double x, y;
+public class PointJava {
+    public final double x, y;
 
-    public Point(double x, double y) {
+    public PointJava(double x, double y) {
         this.x = x;
         this.y = y;
     }
@@ -13,7 +13,7 @@ public class Point {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Point that = (Point) o;
+        PointJava that = (PointJava) o;
 
         return Double.compare(that.x, x) == 0 && Double.compare(that.y, y) == 0;
 

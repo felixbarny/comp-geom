@@ -2,46 +2,38 @@ package state.svg
 
 import groovy.transform.CompileStatic
 import intersections.Point
-
-import java.awt.Shape
-import java.awt.geom.PathIterator
+import intersections.Stretch
 
 class Polygon {
 	List<Point> points = [];
 
+	private static final Random random = new Random()
+
 	@CompileStatic
-	static List<Polygon> valueOf(Shape stateShape) {
-		def state = []
-		Polygon polygonOfState = new Polygon()
-		for (PathIterator pi = stateShape.getPathIterator(null); !pi.isDone(); pi.next()) {
-			double[] coords = new double[2];
-			int segmentType = pi.currentSegment(coords);
-			if (!segmentType.equals(PathIterator.SEG_CLOSE)) {
-				polygonOfState.points << new Point(coords[0], coords[1])
-			} else {
-				state << polygonOfState
-				polygonOfState = new Polygon()
-			}
+	boolean isPointInPolygon(Point pointToTest) {
+		Stretch stretchToTestpoint = getStretchToTestpoint(pointToTest)
+		int noOfIntersections = 0
+		points.eachWithIndex { Point point, int i ->
+			if (stretchToTestpoint.intersects(new Stretch(points[i - 1], point))) noOfIntersections++
 		}
-		return state
+		noOfIntersections % 2 != 0
 	}
 
 	@CompileStatic
-	boolean isHole(List<Polygon> state) {
-		for (Polygon currentPolygon : state) {
-			if (!this.is(currentPolygon)) {
-				if (currentPolygon.isPointInPolygon(points.first()))
-					true
-			}
+	private Stretch getStretchToTestpoint(Point pointToTest) {
+		Stretch stretchToTestpoint = new Stretch(getPointOutsidePolygon(), pointToTest)
+		// Point outside Polygon must not be colinear with any edge of the polygon
+		while (points.any { Point point -> stretchToTestpoint.intersects(point.toStretch()) }) {
+			def oldPointOutsidePolygon = stretchToTestpoint.p
+			// If it is, try another one...
+			def newPointOutsidePolygon = new Point(
+					oldPointOutsidePolygon.x + random.nextDouble() * 5,
+					oldPointOutsidePolygon.y + random.nextDouble() * 5)
+			stretchToTestpoint = new Stretch(newPointOutsidePolygon, stretchToTestpoint.q)
 		}
-		false
+		return stretchToTestpoint
 	}
 
-	boolean isPointInPolygon(Point point) {
-		def pointOutsidePolygon = getPointOutsidePolygon()
-		// TODO
-		false
-	}
 
 	Point getPointOutsidePolygon() {
 		def maxX = Collections.max(points, { p1, p2 -> p1.x <=> p2.x } as Comparator<Point>)
@@ -49,3 +41,4 @@ class Polygon {
 		new Point(maxX.x + 2, maxY.y + 2)
 	}
 }
+

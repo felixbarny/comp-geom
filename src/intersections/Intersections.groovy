@@ -73,4 +73,5 @@ GParsPool.withPool {
 
 @Immutable @CompileStatic class Point {
     double x, y
+	Stretch toStretch() { new Stretch(this, this) }
 }
