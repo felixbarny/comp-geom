@@ -11,8 +11,9 @@ import java.util.List
 @Immutable
 class State {
 	String name
-	List<Polygon> poygonsOfState
+	List<Polygon> polygonsOfState
 
+	@CompileStatic
 	static State valueOf(String name, Shape stateShape) {
 		List<Polygon> state = []
 		Polygon polygonOfState = new Polygon()
@@ -29,9 +30,10 @@ class State {
 		return new State(name, state)
 	}
 
+	@CompileStatic
 	double getAreaInSqKm() {
 		double sum = 0
-		poygonsOfState.eachWithIndex { Polygon polygon, int i1 ->
+		polygonsOfState.eachWithIndex { Polygon polygon, int i1 ->
 			def sumPolygon = 0
 			for (int i = -1; i < polygon.points.size() - 1; i++) {
 				sumPolygon += ((double) polygon.points[i].y) * (polygon.points[i - 1].x - polygon.points[i + 1].x) / 2;
@@ -47,21 +49,32 @@ class State {
 		return sum / 0.85d
 	}
 
+	@CompileStatic
 	boolean isCityInState(Point city) {
 		boolean result = false
-		for (Polygon polygon : poygonsOfState) {
-			if (polygon.isPointInPolygon(city)) {
-				// if city is in two polygons of state -> second polygon is hole
-				// (Berlin is not in Brandenburg)
-				result = !result
+		if (isInBoundingBox(city)) {
+			for (Polygon polygon : polygonsOfState) {
+				if (polygon.isPointInPolygon(city)) {
+					// if city is in two polygons of state -> second polygon is hole
+					// (Berlin is not in Brandenburg)
+					result = !result
+				}
 			}
 		}
 		return result
 	}
 
 	@CompileStatic
+	boolean isInBoundingBox(Point point) {
+		def allX = polygonsOfState*.points*.x.flatten()
+		def allY = polygonsOfState*.points*.y.flatten()
+		return (allX.min()..allX.max()).containsWithinBounds(point.x) &&
+				(allY.min()..allY.max()).containsWithinBounds(point.y)
+	}
+
+	@CompileStatic
 	boolean isHole(Polygon polygon) {
-		for (Polygon currentPolygon : poygonsOfState) {
+		for (Polygon currentPolygon : polygonsOfState) {
 			if (!polygon.is(currentPolygon)) {
 				if (currentPolygon.isPointInPolygon(polygon.points.first())) {
 					return true

@@ -34,11 +34,8 @@ class Polygon {
 		return stretchToTestpoint
 	}
 
-
 	Point getPointOutsidePolygon() {
-		def maxX = Collections.max(points, { p1, p2 -> p1.x <=> p2.x } as Comparator<Point>)
-		def maxY = Collections.max(points, { p1, p2 -> p1.y <=> p2.y } as Comparator<Point>)
-		new Point(maxX.x + 2, maxY.y + 2)
+		new Point(points.x.max() + 2, points.y.max() + 2)
 	}
 }
 

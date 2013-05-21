@@ -11,6 +11,8 @@ import java.awt.*
 import java.text.ParseException
 import java.util.List
 
+import static util.PerformanceTestUtil.benchmark
+
 // souce: http://www.statistik-portal.de/Statistik-Portal/de_jb01_jahrtab1.asp
 def sizeOfStates = [
 		Baden__x26__Württemberg: 35751.48,
@@ -30,45 +32,46 @@ def sizeOfStates = [
 		'Schleswig-Holstein': 15799.25,
 		Thüringen: 16172.50,
 ]
+benchmark {
+	println "slurping svg...(mmh tasty).."
+	def svg = new XmlSlurper().parse(new File("./states.svg"))
 
-println "slurping svg...(mmh tasty).."
-def svg = new XmlSlurper().parse(new File("./states.svg"))
+	println "\nextracting states..."
+	Map<String, Shape> states = svg.g.path.findAll().collectEntries {
+		[(it.@id as String): svgDataToShape(it.@d as String)]
+	}
 
-println "\nextracting states..."
-Map<String, Shape> states = svg.g.path.findAll().collectEntries {
-	[(it.@id as String): svgDataToShape(it.@d as String)]
+	List<State> polygonsOfStates = states.collect { State.valueOf(it.key, it.value) }
+
+	def calculatedSizeOfStates = polygonsOfStates.collectEntries { [(it.name): it.getAreaInSqKm()] }
+	calculatedSizeOfStates.each { println "Area of $it.key is ${it.value.round(2)} km2" }
+	sizeOfStates.each { assert (it.value - calculatedSizeOfStates[it.key]).abs() < 260 }
+
+	println "\nextracting cities..."
+	Map<String, Point> cities = svg.path.findAll().collectEntries {
+		[(it.@id): new Point(it.@"sodipodi:cx".text() as double, it.@"sodipodi:cy".text() as double)]
+	}
+
+
+	def citiesInStatesReference = states.collectEntries { state ->
+		def citiesInState = cities.collect { city ->
+			if (state.value.contains(city.value.x, city.value.y)) {
+				return city.key
+			} else return null
+		}.findAll()
+		[(state.key): citiesInState]
+	}
+	def citiesInStates = polygonsOfStates.collectEntries { state ->
+		def citiesInState = cities.collect { city ->
+			if (state.isCityInState(city.value)) {
+				return city.key
+			} else return null
+		}.findAll()
+		[(state.name): citiesInState]
+	}
+	citiesInStates.each { println "$it.key ist in ${it.value.join(', ')}" }
+	assert citiesInStatesReference == citiesInStates
 }
-
-List<State> polygonsOfStates = states.collect { State.valueOf(it.key, it.value) }
-
-def calculatedSizeOfStates = polygonsOfStates.collectEntries { [(it.name): it.getAreaInSqKm()] }
-calculatedSizeOfStates.each { println "Area of $it.key is ${it.value.round(2)} km2" }
-sizeOfStates.each { assert (it.value - calculatedSizeOfStates[it.key]).abs() < 260 }
-
-println "\nextracting cities..."
-Map<String, Point> cities = svg.path.findAll().collectEntries {
-	[(it.@id): new Point(it.@"sodipodi:cx".text() as double, it.@"sodipodi:cy".text() as double)]
-}
-
-
-def citiesInStatesReference = states.collectEntries { state ->
-	def citiesInState = cities.collect { city ->
-		if (state.value.contains(city.value.x, city.value.y)) {
-			return city.key
-		} else return null
-	}.findAll()
-	[(state.key): citiesInState]
-}
-def citiesInStates = polygonsOfStates.collectEntries { state ->
-	def citiesInState = cities.collect { city ->
-		if (state.isCityInState(city.value)) {
-			return city.key
-		} else return null
-	}.findAll()
-	[(state.name): citiesInState]
-}
-citiesInStates.each { println "$it.key ist in ${it.value.join(', ')}"}
-assert citiesInStatesReference == citiesInStates
 
 @CompileStatic
 public Shape svgDataToShape(String s) throws ParseException {
