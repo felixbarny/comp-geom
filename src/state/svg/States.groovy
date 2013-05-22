@@ -45,7 +45,13 @@ benchmark {
 
 	def calculatedSizeOfStates = polygonsOfStates.collectEntries { [(it.name): it.getAreaInSqKm()] }
 	calculatedSizeOfStates.each { println "Area of $it.key is ${it.value.round(2)} km2" }
-	sizeOfStates.each { assert (it.value - calculatedSizeOfStates[it.key]).abs() < 260 }
+	sizeOfStates.each {
+		def calculated = calculatedSizeOfStates[it.key]
+		def delta = (it.value - calculated).abs(); deltaPercent = delta / it.value * 100
+		println "calculated: $calculated \tactual: $it.value \tdelta: ${delta.round(2)} \tdeltaPercent: ${deltaPercent.round(2)} \t$it.key"
+		assert deltaPercent < 5
+		if (calculated > 1000) assert deltaPercent < 1
+	}
 
 	println "\nextracting cities..."
 	Map<String, Point> cities = svg.path.findAll().collectEntries {
