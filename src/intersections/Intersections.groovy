@@ -1,5 +1,6 @@
 package intersections
 
+import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import groovy.transform.Immutable
 import groovyx.gpars.GParsPool
@@ -31,12 +32,14 @@ GParsPool.withPool {
     return count
 }
 
-@Immutable class Stretch {
+@Canonical class Stretch {
     Point p, q
 
     static Stretch valueOf(points) {
-        new Stretch(p: new Point(x: points[0] as double, y: points[1] as double),
+        Stretch stretch = new Stretch(p: new Point(x: points[0] as double, y: points[1] as double),
                     q: new Point(x: points[2] as double, y: points[3] as double))
+		stretch.p.parent = stretch
+		stretch.q.parent = stretch
     }
 
     @CompileStatic boolean intersects(Stretch r) {
@@ -71,7 +74,8 @@ GParsPool.withPool {
 
 }
 
-@Immutable @CompileStatic class Point {
+@Canonical class Point {
     double x, y
+	def parent
 	Stretch toStretch() { new Stretch(this, this) }
 }
