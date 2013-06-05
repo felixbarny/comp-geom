@@ -78,15 +78,19 @@ def getCount(List<Stretch> stretches, int i1) {
         [p.x, p.y, q.x, q.y].toString()
     }
 
-    @CompileStatic
-    double getGradient() {
+    private double getSlope() {
         (q.y - p.y) / (q.x - p.x)
     }
 
-    double getIntercept(double gradient) {
-        p.y - gradient * p.x
+    private double getIntercept() {
+        p.y - (getSlope() * p.x)
     }
 
+    Point getIntersectionPoint(Stretch stretch) {
+        def x = (getIntercept() - stretch.getIntercept()) / (stretch.getSlope() - getSlope())
+        def y = getSlope() * x + getIntercept()
+        new Point(x, y)
+    }
 }
 
 @Canonical class Point {
