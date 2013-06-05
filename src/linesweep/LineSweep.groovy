@@ -1,35 +1,48 @@
 package linesweep
 
-import groovyx.gpars.GParsPool
+import groovy.transform.Field
 import intersections.Point
 import intersections.Stretch
 
-GParsPool.withPool {
-	new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
-		println file.name
-		List<Stretch> stretches = file.readLines().collectParallel { Stretch.valueOf(it.split()) }
-		TreeSet<Point> queue = new TreeSet<Point>({ a, b -> a.x <=> b.x ?: a.y <=> b.y } as Comparator<Point>)
-		queue.addAll(stretches.p)
-		queue.addAll(stretches.q)
-		TreeSet<Point> sweepLine = new TreeSet<Point>({ a, b -> a.x <=> b.x ?: b.y <=> a.y } as Comparator<Point>)
-		def intersections = []
+@Field TreeSet<Point> queue
+@Field TreeSet<PointOfStretch> sweepLine
+@Field def intersections
 
-		queue.each {
-			if (it.isLeft()) {
-			 	treatLeftEndpoint(it)
-			}
-			if (it.isRight()) {
-				treatRightEndpoint(it)
-			}
-			if (it instanceof Intersection) {
-				treatIntersection(it)
-			}
-		}
-	}
+new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
+    println file.name
+
+    List<Stretch> stretches = file.readLines().collect { Stretch.valueOf(it.split()) }
+    sweepLine = new TreeSet<PointOfStretch>({ a, b -> a.y <=> b.y ?: a.x <=> b.x } as Comparator<PointOfStretch>)
+    queue = new TreeSet<Point>({ a, b -> a.x <=> b.x ?: a.y <=> b.y } as Comparator<Point>)
+    queue.addAll(stretches.p)
+    queue.addAll(stretches.q)
+    intersections = []
+
+    queue.each {
+        if (it instanceof PointOfStretch) {
+            if (it.isLeft()) {
+                treatLeftEndpoint(it)
+            } else {
+                treatRightEndpoint(it)
+            }
+        } else {
+            treatIntersection(it as Intersection)
+        }
+    }
 }
 
-void treatLeftEndpoint(Point point) {}
+void treatLeftEndpoint(PointOfStretch point) {
+    sweepLine << point
+    def segA = sweepLine.higher(point)
+    def segB = sweepLine.lower(point)
+    if (point.stretch.intersects(segA.stretch))
+}
 
-void treatRightEndpoint(Point point) {}
+void treatRightEndpoint(PointOfStretch point) {
 
-void treatIntersection(Intersection intersection) {}
+}
+
+void treatIntersection(Intersection intersection) {
+
+}
+
