@@ -78,4 +78,9 @@ GParsPool.withPool {
     double x, y
 	def parent
 	Stretch toStretch() { new Stretch(this, this) }
+
+	@CompileStatic
+	boolean isLeft() { parent instanceof Stretch && parent.p.is(this) }
+	@CompileStatic
+	boolean isRight() { parent instanceof Stretch && parent.q.is(this) }
 }
