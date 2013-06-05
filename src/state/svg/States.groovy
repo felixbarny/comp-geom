@@ -41,14 +41,15 @@ benchmark {
 		[(it.@id as String): svgDataToShape(it.@d as String)]
 	}
 
-	List<State> polygonsOfStates = states.collect { State.valueOf(it.key, it.value) }
+	List<State> stateList = states.collect { State.valueOf(it.key, it.value) }
 
-	def calculatedSizeOfStates = polygonsOfStates.collectEntries { [(it.name): it.getAreaInSqKm()] }
+	def calculatedSizeOfStates = stateList.collectEntries { [(it.name): it.getAreaInSqKm()] }
 	calculatedSizeOfStates.each { println "Area of $it.key is ${it.value.round(2)} km2" }
 	sizeOfStates.each {
 		def calculated = calculatedSizeOfStates[it.key]
 		def delta = (it.value - calculated).abs(); deltaPercent = delta / it.value * 100
-		println "calculated: $calculated \tactual: $it.value \tdelta: ${delta.round(2)} \tdeltaPercent: ${deltaPercent.round(2)} \t$it.key"
+		println "calculated: $calculated \tactual: $it.value \tdelta: ${delta.round(2)} " +
+				"\tdeltaPercent: ${deltaPercent.round(2)} \t$it.key"
 		assert deltaPercent < 5
 		if (calculated > 1000) assert deltaPercent < 1
 	}
@@ -67,7 +68,7 @@ benchmark {
 		}.findAll()
 		[(state.key): citiesInState]
 	}
-	def citiesInStates = polygonsOfStates.collectEntries { state ->
+	def citiesInStates = stateList.collectEntries { state ->
 		def citiesInState = cities.collect { city ->
 			if (state.isCityInState(city.value)) {
 				return city.key
