@@ -37,14 +37,18 @@ def getCount(List<Stretch> stretches, int i1) {
     PointOfStretch p, q
 
     static Stretch valueOf(points) {
-        Stretch stretch = new Stretch(p: new PointOfStretch(x: points[0] as double, y: points[1] as double),
-                q: new PointOfStretch(x: points[2] as double, y: points[3] as double))
-        stretch.p.stretch = stretch
-        stretch.q.stretch = stretch
+        new Stretch(new Point(x: points[0] as double, y: points[1] as double),
+                new Point(x: points[2] as double, y: points[3] as double))
     }
 
-    @CompileStatic
+	Stretch(Point p, Point q) {
+		this.p = new PointOfStretch(x: p.x, y: p.y, stretch: this)
+		this.q = new PointOfStretch(x: q.x, y: q.y, stretch: this)
+	}
+
+	@CompileStatic
     boolean intersects(Stretch r) {
+		if (r == null) return false
         def ccw1 = ccw(p, q, r.p) * ccw(p, q, r.q)
         def ccw2 = ccw(r.p, r.q, p) * ccw(r.p, r.q, q)
 
@@ -88,11 +92,16 @@ def getCount(List<Stretch> stretches, int i1) {
 
     Point getIntersectionPoint(Stretch stretch) {
         def x = (getIntercept() - stretch.getIntercept()) / (stretch.getSlope() - getSlope())
-        def y = getSlope() * x + getIntercept()
+        def y = getYAt(x)
         new Point(x, y)
     }
+
+	public double getYAt(double x) {
+		getSlope() * x + getIntercept()
+	}
 }
 
 @Canonical class Point {
     double x, y
+	Stretch toStretch() { new Stretch(this, this) }
 }

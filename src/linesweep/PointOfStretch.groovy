@@ -17,5 +17,4 @@ class PointOfStretch extends Point {
     @CompileStatic
     boolean isRight() { !isLeft() }
 
-    Stretch toStretch() { new Stretch(this, this) }
 }
