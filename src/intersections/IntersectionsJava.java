@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class IntersectionsJava {
 
     public static void main(String[] args) throws Exception {
-        for (String fileName : Arrays.asList("Strecken_1000.dat", "Strecken_10000.dat", "Strecken_100000.dat")) {
+        for (String fileName : Arrays.asList("s_0test.dat", "s_1000_1.dat", "s_1000_10.dat")) {
             System.out.println(fileName);
             long start = System.currentTimeMillis();
             final StretchJava[] stretches = readStretches(fileName);

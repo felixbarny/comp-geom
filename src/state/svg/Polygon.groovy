@@ -14,7 +14,8 @@ class Polygon {
 		Stretch stretchToTestpoint = getStretchToTestpoint(pointToTest)
 		int noOfIntersections = 0
 		points.eachWithIndex { Point point, int i ->
-			if (stretchToTestpoint.intersects(new Stretch(points[i - 1], point))) noOfIntersections++
+			if (stretchToTestpoint.intersects(new Stretch(points[i - 1], point)))
+                noOfIntersections++
 		}
 		noOfIntersections % 2 != 0
 	}
@@ -22,7 +23,7 @@ class Polygon {
 	@CompileStatic
 	private Stretch getStretchToTestpoint(Point pointToTest) {
 		Stretch stretchToTestpoint = new Stretch(getPointOutsidePolygon(), pointToTest)
-		// Point outside Polygon must not be colinear with any edge of the polygon
+		// Point outside Polygon must not be collinear with any edge of the polygon
 		while (points.any { Point point -> stretchToTestpoint.intersects(point.toStretch()) }) {
 			def oldPointOutsidePolygon = stretchToTestpoint.p
 			// If it is, try another one...

@@ -8,7 +8,7 @@ import linesweep.PointOfStretch
 import java.util.concurrent.atomic.AtomicInteger;
 
 GParsPool.withPool {
-    new File('./').eachFileMatch(~/Strecken_(.*)\.dat/) { file ->
+    new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
         println file.name
         def start = System.currentTimeMillis()
 
