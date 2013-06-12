@@ -22,8 +22,8 @@ new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
 		def oldSweepLine = sweepLine
 		sweepLine = new TreeSet<PointOfStretch>(
 				{ PointOfStretch a, PointOfStretch b ->
-					a.stretch.getYAt(event.x) <=> b.stretch.getYAt(event.x) ?:
-						a.stretch.getYAt(event.x + 0.000001d) <=> b.stretch.getYAt(event.x + 0.000001d)
+					b.stretch.getYAt(event.x) <=> a.stretch.getYAt(event.x) ?:
+						b.stretch.getYAt(event.x + 1) <=> a.stretch.getYAt(event.x + 1)
 				} as Comparator)
 		sweepLine.addAll(oldSweepLine)
 
@@ -34,8 +34,8 @@ new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
 			else treatRightEndpoint(event, segA, segB, sweepLine, eventQueue)
 		} else if (event instanceof Intersection){
 			PointOfStretch pseudo = new PointOfStretch(x: event.x, y: event.y, stretch: event.stretch1)
-			def segA = sweepLine.higher(pseudo)
-			def segB = sweepLine.lower(pseudo)
+			def segB = sweepLine.higher(pseudo)
+			def segA = sweepLine.lower(pseudo)
 			treatIntersection(event as Intersection, segA, segB, intersections, eventQueue)
 		}
 		eventQueue.remove(event)
@@ -45,9 +45,9 @@ new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
 
 void treatLeftEndpoint(PointOfStretch point, PointOfStretch segA, PointOfStretch segB, sweepLine, eventQueue) {
 	sweepLine << point
-	if (point.stretch.intersects(segA?.stretch))
+	if (point.stretch.intersects(segA?.stretch) && !point.stretch.is(segA.stretch))
 		eventQueue << Intersection.valueOf(point.stretch, segA.stretch)
-	if (point.stretch.intersects(segB?.stretch))
+	if (point.stretch.intersects(segB?.stretch) && !point.stretch.is(segB.stretch))
 		eventQueue << Intersection.valueOf(point.stretch, segB.stretch)
 }
 
@@ -59,9 +59,9 @@ void treatRightEndpoint(PointOfStretch point, PointOfStretch segA, PointOfStretc
 
 void treatIntersection(Intersection intersection, PointOfStretch segA, PointOfStretch segB, intersections, eventQueue) {
 	intersections << intersection
-	if (intersection.stretch2.intersects(segA?.stretch))
+	if (intersection.stretch2.intersects(segA?.stretch) && !intersection.stretch2.is(segA.stretch))
 		eventQueue << Intersection.valueOf(intersection.stretch2, segA.stretch)
-	if (intersection.stretch1.intersects(segB?.stretch))
+	if (intersection.stretch1.intersects(segB?.stretch) && !intersection.stretch1.is(segB.stretch))
 		eventQueue << Intersection.valueOf(intersection.stretch1, segB.stretch)
 }
 
