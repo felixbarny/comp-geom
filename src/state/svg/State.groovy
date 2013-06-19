@@ -57,7 +57,8 @@ class State {
         if (isInBoundingBox(city)) {
             for (Polygon polygon : polygonsOfState) {
                 if (polygon.isPointInPolygon(city)) {
-                    // if city is in two polygons of state -> second polygon is hole
+                    // if city is in two polygons of state
+                    // then second polygon is hole
                     // (Berlin is not in Brandenburg)
                     result = !result
                 }

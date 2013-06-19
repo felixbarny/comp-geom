@@ -46,6 +46,10 @@ def getCount(List<Stretch> stretches, int i1) {
 		this.q = new PointOfStretch(x: q.x, y: q.y, stretch: this)
 	}
 
+    boolean isVertical() {
+        p.x == q.x
+    }
+
 	@CompileStatic
     boolean intersects(Stretch r) {
 		if (r == null) return false
