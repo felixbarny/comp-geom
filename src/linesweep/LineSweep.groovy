@@ -12,7 +12,6 @@ new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
 	println file.name
 
 	List<Stretch> stretches = file.readLines().collect { Stretch.valueOf(it.split()) }
-	stretches.findAll { !it.isVertical() }
 	sweepLine = new TreeSet<>()
 	eventQueue = new TreeSet<>({ a, b -> a.x <=> b.x ?: a.y <=> b.y } as Comparator<Point>)
 	eventQueue.addAll(stretches.p)
@@ -21,14 +20,6 @@ new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
 
 	while (!eventQueue.isEmpty()) {
 		def event = eventQueue.first()
-//        println"eventQueue = "; eventQueue.each {
-//            if (it instanceof PointOfStretch)
-//        print "${it.left ? "S" : "E"}${stretches.indexOf(it.stretch) + 1} "
-//            else if (it instanceof Intersection)
-//        print "I${stretches.indexOf(it.stretch1) + 1},${stretches.indexOf(it.stretch2) + 1} "
-//        }
-//
-//        println ""
 
 		def oldSweepLine = sweepLine
 		sweepLine = new TreeSet<Stretch>(
@@ -38,34 +29,18 @@ new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
 		sweepLine.addAll(oldSweepLine)
 
 		if (event instanceof PointOfStretch) {
-
-//            print "event = ${event.left ? "S" : "E"}${stretches.indexOf(event.stretch) + 1}  "
-//            def oldSweepLine = sweepLine
-//            sweepLine = new TreeSet<Stretch>({ Stretch a, Stretch b -> b.getYAt(event.x) <=> a.getYAt(event.x) } as Comparator)
-//            sweepLine.addAll(oldSweepLine)
 			def segA = sweepLine.lower(event.stretch)
 			def segB = sweepLine.higher(event.stretch)
-
-//            print " segA = ${segA ? "L${stretches.indexOf(segA) + 1}" : "--"}"
-//            print " segB = ${segB ? "L${stretches.indexOf(segB) + 1}" : "--"}"
 			if (event.isLeft()) treatLeftEndpoint(event, segA, segB, sweepLine, eventQueue, intersections)
 			else treatRightEndpoint(event, segA, segB, sweepLine, eventQueue, intersections)
 		} else if (event instanceof Intersection) {
-
 			def segA = sweepLine.lower(event.stretch2)
 			def segB = sweepLine.higher(event.stretch1)
-
-//            print " segA = ${segA ? "L${stretches.indexOf(segA) + 1}" : "--"}"
-//            print " segB = ${segB ? "L${stretches.indexOf(segB) + 1}" : "--"}"
 			treatIntersection(event as Intersection, segA, segB, intersections, eventQueue)
 		}
 		lastEvent = event
 		eventQueue.remove(event)
-//        print " sweepLine = " + sweepLine.collect { "L${stretches.indexOf(it) + 1}" }
-//        println ""
-//        println ""
 	}
-
 	println "found ${intersections.size()} intersections"
 }
 
