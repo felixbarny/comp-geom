@@ -14,8 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class IntersectionsJava {
 
-    public static void main(String[] args) throws Exception {
-        for (String fileName : Arrays.asList("s_1test.dat", "s_1000_1.dat", "s_1000_10.dat")) {
+//	public static final String BASE_FOLDER = "/Users/najum/Documents/uni/ComputationalGeometry/comp-geom/src/intersections/";
+	public static final String BASE_FOLDER = "D:\\dev\\workspaces\\workspace-idea\\comp-geom\\src\\intersections\\";
+
+	public static void main(String[] args) throws Exception {
+        for (String fileName : Arrays.asList("s_01test.dat", "s_1000_1.dat", "s_1000_10.dat")) {
             System.out.println(fileName);
             long start = System.currentTimeMillis();
             final StretchJava[] stretches = readStretches(fileName);
@@ -31,9 +34,10 @@ public class IntersectionsJava {
                         int localCount = 0;
                         for (int index2 = finalIndex1 + 1; index2 < stretches.length; index2++) {
                             if (stretches[finalIndex1].intersects(stretches[index2])) {
-                                localCount++;
-                            }
-                        }
+//								System.out.print(" I" + (finalIndex1 + 1) + "," + (index2 + 1));
+								localCount++;
+							}
+						}
                         count.getAndAdd(localCount);
                     }
                 });
@@ -48,7 +52,7 @@ public class IntersectionsJava {
 
     private static StretchJava[] readStretches(String fileName) throws IOException {
         try (BufferedReader bufferedReader =
-                     new BufferedReader(new FileReader("/Users/najum/Documents/uni/ComputationalGeometry/comp-geom/src/intersections/" + fileName))) {
+                     new BufferedReader(new FileReader(BASE_FOLDER + fileName))) {
             List<StretchJava> stretches = new ArrayList<>(10_000);
             String line = bufferedReader.readLine();
 

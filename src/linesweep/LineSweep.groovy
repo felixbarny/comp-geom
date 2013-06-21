@@ -19,37 +19,32 @@ new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
     eventQueue.addAll(stretches.q)
     intersections = []
 
-//    def lastEvent
     while (!eventQueue.isEmpty()) {
         def event = eventQueue.first()
-//        if (lastEvent && event.x < lastEvent.x) {
-//            eventQueue.remove(event)
-//            continue
-//        }
-        //println"eventQueue = "; eventQueue.each {
+//        println"eventQueue = "; eventQueue.each {
 //            if (it instanceof PointOfStretch)
-        //print "${it.left ? "S" : "E"}${stretches.indexOf(it.stretch) + 1} "
+//        print "${it.left ? "S" : "E"}${stretches.indexOf(it.stretch) + 1} "
 //            else if (it instanceof Intersection)
-        //print "I${stretches.indexOf(it.stretch1) + 1},${stretches.indexOf(it.stretch2) + 1} "
+//        print "I${stretches.indexOf(it.stretch1) + 1},${stretches.indexOf(it.stretch2) + 1} "
 //        }
-
-        //println ""
+//
+//        println ""
 
         if (event instanceof PointOfStretch) {
 
-            //print "event = ${event.left ? "S" : "E"}${stretches.indexOf(event.stretch) + 1}  "
+//            print "event = ${event.left ? "S" : "E"}${stretches.indexOf(event.stretch) + 1}  "
             def oldSweepLine = sweepLine
             sweepLine = new TreeSet<Stretch>({ Stretch a, Stretch b -> b.getYAt(event.x) <=> a.getYAt(event.x) } as Comparator)
             sweepLine.addAll(oldSweepLine)
             def segA = sweepLine.lower(event.stretch)
             def segB = sweepLine.higher(event.stretch)
-            //print " segA = ${segA ? "L${stretches.indexOf(segA) + 1}" : "--"}"
-            //print " segB = ${segB ? "L${stretches.indexOf(segB) + 1}" : "--"}"
+//            print " segA = ${segA ? "L${stretches.indexOf(segA) + 1}" : "--"}"
+//            print " segB = ${segB ? "L${stretches.indexOf(segB) + 1}" : "--"}"
             if (event.isLeft()) treatLeftEndpoint(event, segA, segB, sweepLine, eventQueue, intersections)
             else treatRightEndpoint(event, segA, segB, sweepLine, eventQueue, intersections)
         } else if (event instanceof Intersection) {
 
-            //print "event = I${stretches.indexOf(event.stretch1) + 1},${stretches.indexOf(event.stretch2) + 1}"
+//            print "event = I${stretches.indexOf(event.stretch1) + 1},${stretches.indexOf(event.stretch2) + 1}"
             sweepLine = new ArrayList<>(sweepLine)
             // smaller index -> higher y
             def indexStretch1 = sweepLine.indexOf(event.stretch1)
@@ -62,15 +57,15 @@ new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
             def segA = validIndices.containsWithinBounds(indexSegA) ? sweepLine.get(indexSegA) : null
             def indexSegB = sweepLine.indexOf(event.stretch1) + 1
             def segB = validIndices.containsWithinBounds(indexSegB) ? sweepLine.get(indexSegB) : null
-            //print " segA = ${segA ? "L${stretches.indexOf(segA) + 1}" : "--"}"
-            //print " segB = ${segB ? "L${stretches.indexOf(segB) + 1}" : "--"}"
+//            print " segA = ${segA ? "L${stretches.indexOf(segA) + 1}" : "--"}"
+//            print " segB = ${segB ? "L${stretches.indexOf(segB) + 1}" : "--"}"
             treatIntersection(event as Intersection, segA, segB, intersections, eventQueue)
         }
         lastEvent = event
         eventQueue.remove(event)
-        //print " sweepLine = " + sweepLine.collect { "L${stretches.indexOf(it) + 1}" }
-        //println ""
-        //println ""
+//        print " sweepLine = " + sweepLine.collect { "L${stretches.indexOf(it) + 1}" }
+//        println ""
+//        println ""
     }
 
     println "found ${intersections.size()} intersections"
