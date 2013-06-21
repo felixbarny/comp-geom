@@ -12,10 +12,11 @@ new File('./').eachFileMatch(~/(.*)\.dat/) { file ->
 	println file.name
 
 	List<Stretch> stretches = file.readLines().collect { Stretch.valueOf(it.split()) }
+    assert !stretches.any { it.isVertical() }
 	sweepLine = new TreeSet<>()
-	eventQueue = new TreeSet<>({ a, b -> a.x <=> b.x ?: a.y <=> b.y } as Comparator<Point>)
-	eventQueue.addAll(stretches.p)
-	eventQueue.addAll(stretches.q)
+	eventQueue = new TreeSet<>({ a, b -> a.x <=> b.x } as Comparator<Point>)
+	stretches*.p.each {assert !eventQueue.contains(it); eventQueue << it}
+	stretches*.q.each {assert !eventQueue.contains(it); eventQueue << it}
 	intersections = []
 
 	while (!eventQueue.isEmpty()) {
@@ -66,7 +67,6 @@ void treatIntersection(Intersection intersection, Stretch segA, Stretch segB, Li
 	if (intersection.stretch1.intersects(segB))
 		insertIntoEventQueueIfNotAlreadyFound(Intersection.valueOf(intersection.stretch1, segB), eventQueue, intersections)
 }
-
 
 void insertIntoEventQueueIfNotAlreadyFound(Intersection intersection, Set eventQueue, List intersections) {
 	if (!intersections.contains(intersection) && !eventQueue.contains(intersection)) eventQueue << intersection
