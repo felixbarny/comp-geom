@@ -15,7 +15,6 @@ class Intersection extends Point {
     }
 
     static Intersection valueOf(Stretch stretch1, Stretch stretch2) {
-//		print " Intersection $stretch1 $stretch2"
         def intersectionPoint = stretch1.getIntersectionPoint(stretch2)
         new Intersection(intersectionPoint.x, intersectionPoint.y, stretch1, stretch2)
     }
