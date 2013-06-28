@@ -95,7 +95,8 @@ def getCount(List<Stretch> stretches, int i1) {
     }
 
     Point getIntersectionPoint(Stretch stretch) {
-        def x = (getIntercept() - stretch.getIntercept()) / (stretch.getSlope() - getSlope())
+        def x = (getIntercept() - stretch.getIntercept()) /
+				(stretch.getSlope() - getSlope())
         def y = getYAt(x)
         new Point(x, y)
     }
