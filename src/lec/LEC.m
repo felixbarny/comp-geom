@@ -8,8 +8,9 @@ function LEC(polygon)
     f = [0; 0; -1];
     A = [];
     b = [];
-    disp(ccw(polygon))
-    signccw = sign(ccw(polygon))
+    
+    %call signum function (clockwise = negative, counterclockwise = positive)
+    signumccw = sign(ccw(polygon));
     
     % Iterate trough matrix (polygon coordinates)
     for i = 1 : (rows - 1)
@@ -20,8 +21,8 @@ function LEC(polygon)
         v = q - p; % "head-minus-tail-rule"
         
         % calculate normal vector (orthogonal to vector v)
-        n = signccw * [-v(2);v(1)];
-        
+        n = signumccw * [-v(2);v(1)];
+
         % normailze vector n (vector length of 1, but same direction)
         normalized_n = n/norm(n);
         
@@ -45,8 +46,7 @@ function ccw = ccw(polygon)
     p = polygon(1,:);
     q = polygon(2,:);
     r = polygon(3,:);
-
-    ccw = ((p(1) * q(2) - p(2) * q(1)) + (q(1) * r(2) - q(2) * r(1)) + (p(2) * r(1) - p(1) * r(2)))
+    ccw = ((p(1) * q(2) - p(2) * q(1)) + (q(1) * r(2) - q(2) * r(1)) + (p(2) * r(1) - p(1) * r(2)));
 end
 
 function validPolygon = validate(polygon)
