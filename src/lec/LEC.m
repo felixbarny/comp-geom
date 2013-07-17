@@ -5,9 +5,9 @@ function LEC(polygon)
     
     [rows,columns]= size(polygon);
     
-    f = [0; 0; -1];
-    A = [];
-    b = [];
+    f = [0; 0; -1]; % Koeffizienten der Zielfunktion
+    A = []; % Koeffizienten der Restriktionen
+    b = []; % A * x <= b
     
     %call signum function (clockwise = negative, counterclockwise = positive)
     signumccw = sign(ccw(polygon));
